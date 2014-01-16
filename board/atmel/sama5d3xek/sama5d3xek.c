@@ -149,7 +149,8 @@ static void sama5d3xek_lcd_hw_init(void)
 
 void lcd_show_board_info(void)
 {
-	ulong dram_size, nand_size;
+	ulong dram_size;
+	uint64_t nand_size;
 	int i;
 	char temp[32];
 
@@ -168,7 +169,7 @@ void lcd_show_board_info(void)
 	for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++)
 		nand_size += nand_info[i].size;
 #endif
-	lcd_printf ("  %ld MB SDRAM, %ld MB NAND\n",
+	lcd_printf ("  %ld MB SDRAM, %lld MB NAND\n",
 		dram_size >> 20,
 		nand_size >> 20 );
 }
@@ -177,6 +178,12 @@ void lcd_show_board_info(void)
 
 int board_early_init_f(void)
 {
+	at91_periph_clk_enable(ATMEL_ID_PIOA);
+	at91_periph_clk_enable(ATMEL_ID_PIOB);
+	at91_periph_clk_enable(ATMEL_ID_PIOC);
+	at91_periph_clk_enable(ATMEL_ID_PIOD);
+	at91_periph_clk_enable(ATMEL_ID_PIOE);
+
 #ifdef CONFIG_USART1
 	at91_serial1_hw_init();
 #else

@@ -29,6 +29,8 @@
 
 #include <asm/hardware.h>
 
+#define CONFIG_SYS_TEXT_BASE		0x73f00000
+
 #define CONFIG_AT91_LEGACY
 #define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
 
@@ -157,7 +159,7 @@
 
 #define CONFIG_BOOTCOMMAND						\
 	"nand read 0x70000000 0x200000 0x300000;"			\
-	"bootm 0x70000000"
+	"bootz 0x70000000"
 #define CONFIG_BOOTARGS							\
 	"console=ttyS0,115200 earlyprintk "				\
 	"mtdparts=atmel_nand:256k(bootstrap)ro,512k(uboot)ro,"		\

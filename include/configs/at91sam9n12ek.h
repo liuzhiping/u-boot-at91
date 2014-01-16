@@ -139,6 +139,9 @@
 #define CONFIG_PMECC_CAP		2
 #define CONFIG_PMECC_SECTOR_SIZE	512
 #define CONFIG_PMECC_INDEX_TABLE_OFFSET	0x8000
+
+#define CONFIG_CMD_NAND_TRIMFFS
+
 #endif
 
 #define CONFIG_MTD_PARTITIONS
@@ -180,6 +183,10 @@
 #define CONFIG_DOS_PARTITION
 #endif
 
+/* Ethernet */
+#define CONFIG_KS8851_MLL
+#define CONFIG_KS8851_MLL_BASEADDR	0x30000000 /* use NCS2 */
+
 #define CONFIG_SYS_LOAD_ADDR		0x22000000 /* load address */
 
 #define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
@@ -195,7 +202,7 @@
 #define CONFIG_BOOTCOMMAND						\
 	"setenv bootargs ${console} ${mtdparts} ${bootargs_nand};"	\
 	"sf probe 0; sf read 0x22000000 0x100000 0x300000; "		\
-	"bootm 0x22000000"
+	"bootz 0x22000000"
 
 #elif defined(CONFIG_SYS_USE_NANDFLASH)
 
@@ -208,7 +215,7 @@
 	"setenv bootargs ${console} ${mtdparts} ${bootargs_nand};"	\
 	"nand read 0x21000000 0x180000 0x080000;"			\
 	"nand read 0x22000000 0x200000 0x400000;"			\
-	"bootm 0x22000000 - 0x21000000"
+	"bootz 0x22000000 - 0x21000000"
 
 #else /* CONFIG_SYS_USE_MMC */
 
@@ -221,8 +228,8 @@
 #define CONFIG_BOOTCOMMAND						\
 	"setenv bootargs ${console} ${mtdparts} ${bootargs_mmc};"	\
 	"fatload mmc 0:1 0x21000000 dtb;"				\
-	"fatload mmc 0:1 0x22000000 uImage;"				\
-	"bootm 0x22000000 - 0x21000000"
+	"fatload mmc 0:1 0x22000000 zImage;"				\
+	"bootz 0x22000000 - 0x21000000"
 
 #endif
 

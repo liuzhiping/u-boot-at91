@@ -105,6 +105,8 @@
 #define CONFIG_CMD_PING		1
 #define CONFIG_CMD_DHCP		1
 #define CONFIG_CMD_NAND		1
+#define CONFIG_CMD_MMC
+#define CONFIG_CMD_FAT
 #define CONFIG_CMD_USB		1
 
 /*
@@ -158,6 +160,18 @@
 #define CONFIG_SYS_NAND_READY_PIN	AT91_PIN_PC13
 #endif
 
+/* MMC */
+#ifdef CONFIG_CMD_MMC
+#define CONFIG_MMC
+#define CONFIG_GENERIC_MMC
+#define CONFIG_GENERIC_ATMEL_MCI
+#endif
+
+/* FAT */
+#ifdef CONFIG_CMD_FAT
+#define CONFIG_DOS_PARTITION
+#endif
+
 /* NOR flash - no real flash on this board */
 #define CONFIG_SYS_NO_FLASH			1
 
@@ -171,13 +185,11 @@
 #define CONFIG_USB_ATMEL
 #define CONFIG_USB_ATMEL_CLK_SEL_PLLB
 #define CONFIG_USB_OHCI_NEW		1
-#define CONFIG_DOS_PARTITION		1
 #define CONFIG_SYS_USB_OHCI_CPU_INIT		1
 #define CONFIG_SYS_USB_OHCI_REGS_BASE		0x00500000	/* AT91SAM9260_UHP_BASE */
 #define CONFIG_SYS_USB_OHCI_SLOT_NAME		"at91sam9260"
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	2
 #define CONFIG_USB_STORAGE		1
-#define CONFIG_CMD_FAT			1
 
 #define CONFIG_SYS_LOAD_ADDR			0x22000000	/* load address */
 
@@ -192,7 +204,13 @@
 #define CONFIG_ENV_OFFSET		0x4200
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0 + CONFIG_ENV_OFFSET)
 #define CONFIG_ENV_SIZE		0x4200
+
+#ifdef CONFIG_AT91SAM9G20EK
+#define CONFIG_BOOTCOMMAND	"cp.b 0xC0084000 0x22000000 0x210000; bootz"
+#else
 #define CONFIG_BOOTCOMMAND	"cp.b 0xC0084000 0x22000000 0x210000; bootm"
+#endif
+
 #define CONFIG_BOOTARGS		"console=ttyS0,115200 "			\
 				"root=/dev/mtdblock0 "			\
 				"mtdparts=atmel_nand:-(root) "		\
@@ -206,20 +224,32 @@
 #define CONFIG_ENV_OFFSET		0x4200
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS1 + CONFIG_ENV_OFFSET)
 #define CONFIG_ENV_SIZE		0x4200
+
+#ifdef CONFIG_AT91SAM9G20EK
+#define CONFIG_BOOTCOMMAND	"cp.b 0xD0084000 0x22000000 0x210000; bootz"
+#else
 #define CONFIG_BOOTCOMMAND	"cp.b 0xD0084000 0x22000000 0x210000; bootm"
+#endif
+
 #define CONFIG_BOOTARGS		"console=ttyS0,115200 "			\
 				"root=/dev/mtdblock0 "			\
 				"mtdparts=atmel_nand:-(root) "		\
 				"rw rootfstype=jffs2"
 
-#else /* CONFIG_SYS_USE_NANDFLASH */
+#elif defined(CONFIG_SYS_USE_NANDFLASH)
 
 /* bootstrap + u-boot + env + linux in nandflash */
 #define CONFIG_ENV_IS_IN_NAND	1
 #define CONFIG_ENV_OFFSET		0xc0000
 #define CONFIG_ENV_OFFSET_REDUND	0x100000
 #define CONFIG_ENV_SIZE		0x20000		/* 1 sector = 128 kB */
+
+#ifdef CONFIG_AT91SAM9G20EK
+#define CONFIG_BOOTCOMMAND	"nand read 0x22000000 0x200000 0x300000; bootz"
+#else
 #define CONFIG_BOOTCOMMAND	"nand read 0x22000000 0x200000 0x300000; bootm"
+#endif
+
 #define CONFIG_BOOTARGS							\
 	"console=ttyS0,115200 earlyprintk "				\
 	"mtdparts=atmel_nand:256k(bootstrap)ro,512k(uboot)ro,"		\
@@ -227,6 +257,28 @@
 	"512k(dtb),6M(kernel)ro,-(rootfs) "				\
 	"root=/dev/mtdblock7 rw rootfstype=jffs2"
 
+#else	/* CONFIG_SYS_USE_MMC */
+/* bootstrap + u-boot + env + linux in mmc */
+#define CONFIG_ENV_IS_IN_MMC
+/* For FAT system, most cases it should be in the reserved sector */
+#define CONFIG_ENV_OFFSET		0x2000
+#define CONFIG_ENV_SIZE			0x1000
+#define CONFIG_SYS_MMC_ENV_DEV		0
+
+#ifdef CONFIG_AT91SAM9G20EK
+#define CONFIG_BOOTCOMMAND						\
+	"fatload mmc 0:1 0x22000000 zImage; bootz"
+#else
+#define CONFIG_BOOTCOMMAND						\
+	"fatload mmc 0:1 0x22000000 uImage; bootm"
+#endif
+
+#define CONFIG_BOOTARGS							\
+	"console=ttyS0,115200 earlyprintk "				\
+	"mtdparts=atmel_nand:256k(bootstrap)ro,512k(uboot)ro,"		\
+	"256k(env),256k(env_redundant),256k(spare),"			\
+	"512k(dtb),6M(kernel)ro,-(rootfs) "				\
+	"root=/dev/mmcblk0p2 rw rootfstype=ext4 rootwait"
 #endif
 
 #define CONFIG_SYS_PROMPT		"U-Boot> "

@@ -27,6 +27,8 @@
 
 #include <asm/hardware.h>
 
+#define CONFIG_SYS_TEXT_BASE		0x26f00000
+
 /* ARM asynchronous clock */
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768
 #define CONFIG_SYS_AT91_MAIN_CLOCK	12000000	/* 12 MHz crystal */
@@ -59,7 +61,6 @@
 #define LCD_BPP			LCD_COLOR16
 #define LCD_OUTPUT_BPP		24
 #define CONFIG_LCD_LOGO
-#undef LCD_TEST_PATTERN
 #define CONFIG_LCD_INFO
 #define CONFIG_LCD_INFO_BELOW_LOGO
 #define CONFIG_SYS_WHITE_ON_BLACK
@@ -77,14 +78,15 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
+/* no NOR flash */
+#define CONFIG_SYS_NO_FLASH
+
 /*
  * Command line configuration.
  */
 #include <config_cmd_default.h>
 #undef CONFIG_CMD_FPGA
 #undef CONFIG_CMD_IMI
-#undef CONFIG_CMD_IMLS
-#undef CONFIG_CMD_LOADS
 
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
@@ -116,9 +118,6 @@
 #define CONFIG_SF_DEFAULT_SPEED		30000000
 #endif
 
-/* no NOR flash */
-#define CONFIG_SYS_NO_FLASH
-
 /* NAND flash */
 #ifdef CONFIG_CMD_NAND
 #define CONFIG_NAND_ATMEL
@@ -137,6 +136,8 @@
 #define CONFIG_ATMEL_NAND_HW_PMECC	1
 #define CONFIG_PMECC_CAP		2
 #define CONFIG_PMECC_SECTOR_SIZE	512
+
+#define CONFIG_CMD_NAND_TRIMFFS
 
 #define CONFIG_MTD_DEVICE
 #define CONFIG_CMD_MTDPARTS
@@ -195,7 +196,7 @@
 #define CONFIG_ENV_SIZE		0x20000		/* 1 sector = 128 kB */
 #define CONFIG_BOOTCOMMAND	"nand read " \
 				"0x22000000 0x200000 0x300000; " \
-				"bootm 0x22000000"
+				"bootz 0x22000000"
 #elif defined(CONFIG_SYS_USE_SPIFLASH)
 /* bootstrap + u-boot + env + linux in spi flash */
 #define CONFIG_ENV_IS_IN_SPI_FLASH
@@ -205,7 +206,7 @@
 #define CONFIG_ENV_SPI_MAX_HZ	30000000
 #define CONFIG_BOOTCOMMAND	"sf probe 0; " \
 				"sf read 0x22000000 0x100000 0x300000; " \
-				"bootm 0x22000000"
+				"bootz 0x22000000"
 #elif defined(CONFIG_SYS_USE_DATAFLASH)
 /* bootstrap + u-boot + env + linux in data flash */
 #define CONFIG_ENV_IS_IN_SPI_FLASH
@@ -215,7 +216,7 @@
 #define CONFIG_ENV_SPI_MAX_HZ	30000000
 #define CONFIG_BOOTCOMMAND	"sf probe 0; " \
 				"sf read 0x22000000 0x84000 0x294000; " \
-				"bootm 0x22000000"
+				"bootz 0x22000000"
 #else /* CONFIG_SYS_USE_MMC */
 /* bootstrap + u-boot + env + linux in mmc */
 #define CONFIG_ENV_IS_IN_MMC
@@ -258,9 +259,5 @@
  * Size of malloc() pool
  */
 #define CONFIG_SYS_MALLOC_LEN		(512 * 1024 + 0x1000)
-
-#ifdef CONFIG_USE_IRQ
-#error CONFIG_USE_IRQ not supported
-#endif
 
 #endif
